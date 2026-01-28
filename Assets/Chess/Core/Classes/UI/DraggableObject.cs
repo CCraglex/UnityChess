@@ -34,7 +34,9 @@ public class DraggableObject : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     //Must be impelmented for onpointerup to work
-    public void OnPointerDown(PointerEventData eventData) {}
+    public void OnPointerDown(PointerEventData eventData) {
+        OnPointerDownExtras();
+    }
 
     public void OnPointerUp(PointerEventData eventData)
     {
@@ -57,11 +59,12 @@ public class DraggableObject : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
 
         wasDragAction = true;
+        OnBeginDragExtras();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if(!ObjEnabled)
+        if(!ObjEnabled || !wasDragAction)
             return;
 
         mousePos = Mouse.current.position.ReadValue();
@@ -78,6 +81,8 @@ public class DraggableObject : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         OnEndDragExtras();
     }
 
+    public virtual void OnPointerDownExtras() {}
+    public virtual void OnBeginDragExtras() {}
     public virtual void OnEndDragExtras(){ }
     public virtual void OnSelectExtras() { }
 }

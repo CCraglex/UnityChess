@@ -5,8 +5,8 @@ public struct Position
     public ulong b_Pawns,b_Knights,b_Bishops,b_Rooks,b_Queens,b_King;
     public ulong enPassantSqr;
 
-    public ulong WhitePieces => w_Pawns | w_Knights | w_Bishops | w_Queens | w_King;
-    public ulong BlackPieces => b_Pawns | b_Knights | b_Bishops | b_Queens | b_King;
+    public ulong WhitePieces => w_Pawns | w_Knights | w_Bishops | w_Rooks | w_Queens | w_King;
+    public ulong BlackPieces => b_Pawns | b_Knights | b_Bishops | b_Rooks | b_Queens | b_King;
     public ulong AllPieces => WhitePieces | BlackPieces;
 
     public Turn playingSide;

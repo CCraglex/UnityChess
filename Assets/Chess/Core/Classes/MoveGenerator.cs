@@ -5,6 +5,7 @@ using UnityEngine;
 
 public static class MoveGenerator
 {
+    #region  Files/Rows
     const ulong FileA = 0x0101010101010101UL;
     const ulong FileH = 0x8080808080808080UL;
     const ulong Rank2 = 0x000000000000FF00UL;
@@ -13,6 +14,36 @@ public static class MoveGenerator
     const ulong Rank1 = 0x00000000000000FFUL;
     const ulong Rank3 = 0x0000000000FF0000UL;
     const ulong Rank6 = 0x0000FF0000000000UL;
+    #endregion
+
+    public static ulong GetPseudoMovesOfSqr(Position pos,int sqr)
+    {
+        if(((pos.w_Pawns | pos.b_Pawns) & (1UL << sqr)) != 0)
+            return GetPseudoMovePawnSqr(pos,sqr);
+        
+        if(((pos.w_Knights | pos.b_Knights) & (1UL << sqr)) != 0)
+            return GetPseudoMoveKnightSqr(pos,sqr);
+
+        if(((pos.w_Bishops | pos.b_Bishops) & (1UL << sqr)) != 0)
+            return GetPseudoMoveBishopSqr(pos,sqr);
+        
+        if(((pos.w_Rooks | pos.b_Rooks) & (1UL << sqr)) != 0)
+            return GetPseudoMoveRookSqr(pos,sqr);
+        
+        if(((pos.w_Queens | pos.b_Queens) & (1UL << sqr)) != 0)
+            return GetPseudoMoveQueenSqr(pos,sqr);
+        
+        if(((pos.w_King | pos.b_King) & (1UL << sqr)) != 0)
+            return GenerateKingPseudoMoves(pos,sqr);
+        
+        return 0;
+    }
+
+    public static bool IsPlayingColor(Position pos,int sqr)
+    {
+        ulong mask = pos.playingSide == Turn.White ? pos.WhitePieces : pos.BlackPieces;
+        return (mask & (1UL << sqr)) != 0;
+    }
 
     public static ulong GeneratePawnAttacks(Position pos, bool isWhite)
     {
@@ -63,9 +94,10 @@ public static class MoveGenerator
 
         return attacks;
     }
-
-    public static ulong ulongGetPseudoMovePawnSqr(Position pos,bool isWhite,ulong pawnBB)
+    public static ulong GetPseudoMovePawnSqr(Position pos,ulong pawnBB)
     {
+        bool isWhite = pos.playingSide == Turn.White;
+
         ulong moves = 0;
         ulong empty = ~pos.AllPieces;
         ulong enemy = isWhite ? pos.BlackPieces : pos.WhitePieces;
@@ -113,14 +145,9 @@ public static class MoveGenerator
         return moves;
 
     }
-
-    
-    public static ulong ulongGetPseudoMovePawnSqr(Position pos,bool isWhite,int PawnSqr)
-        => ulongGetPseudoMovePawnSqr(pos,isWhite,BitOperations.BitFromSqr(PawnSqr));
-
-    #region KnightMoveGen
-
-    //Pseudo
+    public static ulong GetPseudoMovePawnSqr(Position pos,int PawnSqr)
+        => GetPseudoMovePawnSqr(pos,BitOperations.BitFromSqr(PawnSqr));
+    //--
     public static ulong GenerateKnightMoves(Position pos, bool isWhite)
     {   
         ulong knights = isWhite ? pos.w_Knights : pos.b_Knights;
@@ -129,41 +156,38 @@ public static class MoveGenerator
 
         while (knights != 0)
         {
-            allAttacks |= GetPseudoMoveKnightSqr(pos,isWhite,knights & (~knights + 1));
+            allAttacks |= GetPseudoMoveKnightSqr(pos,knights & (~knights + 1));
             knights &= knights - 1;
         }
 
         return allAttacks;
     }
-    public static ulong GetPseudoMoveKnightSqr(Position pos,bool isWhite,ulong KnightBB_Pos)
-        => GetPseudoMoveKnightSqr(pos,isWhite,BitOperations.SquareFromBit(KnightBB_Pos));
-
-    public static ulong GetPseudoMoveKnightSqr(Position pos,bool isWhite,int KnightSqr)
+    public static ulong GetPseudoMoveKnightSqr(Position pos,ulong KnightBB_Pos)
+        => GetPseudoMoveKnightSqr(pos,BitOperations.SquareFromBit(KnightBB_Pos));
+    public static ulong GetPseudoMoveKnightSqr(Position pos,int KnightSqr)
     {
-        var friendlies = isWhite ? pos.WhitePieces : pos.BlackPieces;
+        var friendlies = pos.playingSide == Turn.White ? pos.WhitePieces : pos.BlackPieces;
         return PieceAttacks.KnightAttacks[KnightSqr] & ~friendlies;
     }
-
-    //TODO: Sanitize knight move gen
-    #endregion KnightMoveGen
-
-    static ulong GenerateBishopAttacks(ulong bishop, ulong allPieces)
+    //--
+    static ulong GetPseudoMoveBishopSqr(Position pos,int square)
     {
         ulong attacks = 0UL;
         ulong current;
+        ulong bishop = BitOperations.BitFromSqr(square);
 
-        ulong aFile = 0x0101010101010101UL;
-        ulong hFile = 0x8080808080808080UL;
-
-        ulong notH = ~hFile;
-        ulong notA = ~aFile; 
+        ulong notH = ~FileH;
+        ulong notA = ~FileA; 
+        ulong allPieces = pos.AllPieces;
+        ulong friendlies = pos.playingSide == Turn.White ? pos.WhitePieces : pos.BlackPieces;
 
         // NE
         current = bishop;
         while ((current & notH) != 0)
         {
             current <<= 9;
-            attacks |= current;
+            if((current & friendlies) == 0)
+                attacks |= current;
             if ((current & allPieces) != 0) break;
         }
 
@@ -172,7 +196,8 @@ public static class MoveGenerator
         while ((current & notA) != 0)
         {
             current <<= 7;
-            attacks |= current;
+            if((current & friendlies) == 0)
+                attacks |= current;
             if ((current & allPieces) != 0) break;
         }
 
@@ -181,7 +206,8 @@ public static class MoveGenerator
         while ((current & notH) != 0)
         {
             current >>= 7;
-            attacks |= current;
+            if((current & friendlies) == 0)
+                attacks |= current;
             if ((current & allPieces) != 0) break;
         }
 
@@ -190,63 +216,16 @@ public static class MoveGenerator
         while ((current & notA) != 0)
         {
             current >>= 9;
-            attacks |= current;
+            if((current & friendlies) == 0)
+                attacks |= current;
             if ((current & allPieces) != 0) break;
         }
 
         return attacks;
     }    
-
+    //--
     static ulong GenerateAllRookAttacks(Position pos, bool isWhite)
     {
-        static ulong GenerateRookAttacks(ulong rook, ulong allPieces)
-        {
-            ulong attacks = 0UL;
-            ulong current;
-
-            ulong aFile = 0x0101010101010101UL;
-            ulong hFile = 0x8080808080808080UL;
-            ulong notA = ~aFile;
-            ulong notH = ~hFile;
-
-            // North
-            current = rook;
-            while ((current << 8) != 0)
-            {
-                current <<= 8;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // South
-            current = rook;
-            while ((current >> 8) != 0)
-            {
-                current >>= 8;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // East (right)
-            current = rook;
-            while ((current & notH) != 0)
-            {
-                current <<= 1;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // West (left)
-            current = rook;
-            while ((current & notA) != 0)
-            {
-                current >>= 1;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            return attacks;
-        }
 
         ulong allPieces = pos.WhitePieces | pos.BlackPieces;
         ulong rooks = isWhite ? pos.w_Rooks : pos.b_Rooks;
@@ -255,100 +234,69 @@ public static class MoveGenerator
         while (rooks != 0)
         {
             ulong singleRook = rooks & (~rooks + 1); // isolate LSB
-            allAttacks |= GenerateRookAttacks(singleRook, allPieces);
+            allAttacks |= GetPseudoMoveRookSqr(pos, BitOperations.SquareFromBit(singleRook));
             rooks &= rooks - 1; // remove this rook
         }
 
         return allAttacks;
     }
-
-    static ulong GenerateQueenAttacks(Position pos, bool isWhite)
+    static ulong GetPseudoMoveRookSqr(Position pos, int RookSqr)
     {
-        ulong GenerateSingleQueenAttacks(ulong queen, ulong allPieces)
+        ulong attacks = 0UL;
+        ulong current;
+        ulong rook = BitOperations.BitFromSqr(RookSqr);
+
+        ulong notA = ~FileA;
+        ulong notH = ~FileH;
+        ulong allPieces = pos.AllPieces;
+        ulong friendlies = pos.playingSide == Turn.White ? pos.WhitePieces : pos.BlackPieces;
+
+        // North
+        current = rook;
+        while ((current << 8) != 0)
         {
-            ulong attacks = 0UL;
-            ulong current;
-
-            ulong aFile = 0x0101010101010101UL;
-            ulong hFile = 0x8080808080808080UL;
-            ulong notA = ~aFile;
-            ulong notH = ~hFile;
-
-            // NE
-            current = queen;
-            while ((current & notH) != 0)
-            {
-                current <<= 9;
+            current <<= 8;
+            if((current & friendlies) == 0)
                 attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // NW
-            current = queen;
-            while ((current & notA) != 0)
-            {
-                current <<= 7;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // SE
-            current = queen;
-            while ((current & notH) != 0)
-            {
-                current >>= 7;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // SW
-            current = queen;
-            while ((current & notA) != 0)
-            {
-                current >>= 9;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // North
-            current = queen;
-            while ((current << 8) != 0)
-            {
-                current <<= 8;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // South
-            current = queen;
-            while ((current >> 8) != 0)
-            {
-                current >>= 8;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // East
-            current = queen;
-            while ((current & notH) != 0)
-            {
-                current <<= 1;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            // West
-            current = queen;
-            while ((current & notA) != 0)
-            {
-                current >>= 1;
-                attacks |= current;
-                if ((current & allPieces) != 0) break;
-            }
-
-            return attacks;
+            if ((current & allPieces) != 0) break;
         }
 
+        // South
+        current = rook;
+        while ((current >> 8) != 0)
+        {
+            current >>= 8;
+            if((current & friendlies) == 0)
+                attacks |= current;
+
+            if ((current & allPieces) != 0) break;
+        }
+
+        // East (right)
+        current = rook;
+        while ((current & notH) != 0)
+        {
+            current <<= 1;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // West (left)
+        current = rook;
+        while ((current & notA) != 0)
+        {
+            current >>= 1;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        return attacks;
+    }
+    //--
+    static ulong GenerateQueenAttacks(Position pos, bool isWhite)
+    {
         ulong allPieces = pos.WhitePieces | pos.BlackPieces;
         ulong queens = isWhite ? pos.w_Queens : pos.b_Queens;
         ulong attacks = 0UL;
@@ -356,19 +304,112 @@ public static class MoveGenerator
         while (queens != 0)
         {
             ulong singleQueen = queens & (~queens + 1);
-            attacks |= GenerateSingleQueenAttacks(singleQueen, allPieces);
+            attacks |= GetPseudoMoveQueenSqr(pos, BitOperations.SquareFromBit(singleQueen));
             queens &= queens - 1;
         }
 
         return attacks;
     }
-
-    #region King
-
-    static ulong GenerateKingPseudoMoves(Position pos, bool isWhite)
+    static ulong GetPseudoMoveQueenSqr(Position pos, int QueenSqr)
     {
+        ulong attacks = 0UL;
+        ulong current;
+        ulong queen = BitOperations.BitFromSqr(QueenSqr);
+
+        ulong notA = ~FileA;
+        ulong notH = ~FileH;
+        ulong allPieces = pos.AllPieces;
+        ulong friendlies = pos.playingSide == Turn.White ? pos.WhitePieces : pos.BlackPieces;
+
+        // NE
+        current = queen;
+        while ((current & notH) != 0)
+        {
+            current <<= 9;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // NW
+        current = queen;
+        while ((current & notA) != 0)
+        {
+            current <<= 7;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // SE
+        current = queen;
+        while ((current & notH) != 0)
+        {
+            current >>= 7;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // SW
+        current = queen;
+        while ((current & notA) != 0)
+        {
+            current >>= 9;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // North
+        current = queen;
+        while ((current << 8) != 0)
+        {
+            current <<= 8;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // South
+        current = queen;
+        while ((current >> 8) != 0)
+        {
+            current >>= 8;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // East
+        current = queen;
+        while ((current & notH) != 0)
+        {
+            current <<= 1;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        // West
+        current = queen;
+        while ((current & notA) != 0)
+        {
+            current >>= 1;
+            if((current & friendlies) == 0)
+                attacks |= current;
+            if ((current & allPieces) != 0) break;
+        }
+
+        return attacks;
+    }
+    //--
+    static ulong GenerateKingPseudoMoves(Position pos, int KingSqr)
+    {
+        bool isWhite = pos.playingSide == Turn.White;
+        
         ulong king = isWhite ? pos.w_King : pos.b_King;
-        ulong allPieces = pos.WhitePieces | pos.BlackPieces;
+        ulong allPieces = pos.AllPieces;
         ulong ownPieces = isWhite ? pos.WhitePieces : pos.BlackPieces;
 
         ulong attacks = PieceAttacks.KingAttacks[BitOperations.SquareFromBit(king)];
@@ -399,8 +440,6 @@ public static class MoveGenerator
 
         return attacks;
     }
-
-    #endregion King
 
     public static Span<Move> GetLegitMoves()
         => null;

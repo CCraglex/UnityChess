@@ -29,12 +29,14 @@ public class ChessPiece : DraggableObject, IBeginDragHandler, IDragHandler, IEnd
         int row  = Mathf.RoundToInt((rect.localPosition.y + 350f) / 100f);
 
         pieceSquare = row * 8 + file;
-        print("?");
     }
 
     private bool IsAllowedToMove()
     {
-        return true;
+        var board = Board.Instance;
+        var pos = board.currentPosition;
+
+        return MoveGenerator.IsPlayingColor(pos,pieceSquare);
     }
 
     private Vector2 SnapPosition(Vector2 newPos)
@@ -46,6 +48,12 @@ public class ChessPiece : DraggableObject, IBeginDragHandler, IDragHandler, IEnd
             snappedY = Mathf.Clamp(snappedY, -350f, 350f);
 
         return new(snappedX,snappedY);
+    }
+
+    public override void OnBeginDragExtras()
+    {
+        if (!IsAllowedToMove())
+            wasDragAction = false;
     }
 
     public override void OnEndDragExtras()
@@ -62,10 +70,14 @@ public class ChessPiece : DraggableObject, IBeginDragHandler, IDragHandler, IEnd
 
     public override void OnSelectExtras()
     {
-        var board = Board.Instance;
-        ulong sqr = 1UL << pieceSquare;
+        if(!IsAllowedToMove())
+            return;
 
-        ulong possibleMoves = MoveGenerator.ulongGetPseudoMovePawnSqr(board.currentPosition,false,sqr);
-        Board.Instance.PlaceDots(possibleMoves);
+        var board = Board.Instance;
+        var pos = board.currentPosition;
+
+        board.ClearDots();
+        ulong possibleMoves = MoveGenerator.GetPseudoMovesOfSqr(pos,pieceSquare);
+        board.PlaceDots(possibleMoves);
     }
 }

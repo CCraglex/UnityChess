@@ -5,8 +5,6 @@ public class Board : MonoBehaviour
 {
     [SerializeField] string FenConfig;
     public static Board Instance;
-
-    public Turn currentTurn;
     public Position currentPosition;
 
     public GameObject[] piecePrefabs;
@@ -35,7 +33,7 @@ public class Board : MonoBehaviour
         if(FenConfig != string.Empty)
             currentPosition.CustomBoard(FenConfig);
         else currentPosition.NewBoard();
-        
+
         Pieces = new GameObject[32];
         PlacePieces();
 
@@ -104,11 +102,13 @@ public class Board : MonoBehaviour
             var dot = Instantiate(dotPrefab,dotsParent);
             var rt = dot.transform as RectTransform;
             
-            int x = Sqr / 8;
-            int y = Sqr % 8;
-            x = -350 + 100 * x;
-            y = -350 + 100 * y;
-            rt.localPosition = new(x,y);
+            int row = Sqr / 8;
+            int col = Sqr % 8;
+
+            int x = -350 + 100 * col;
+            int y = -350 + 100 * row;
+
+            rt.localPosition = new(x, y);
 
             Dots.Add(dot);
         }

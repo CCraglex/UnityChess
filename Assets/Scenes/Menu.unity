@@ -498,7 +498,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40097a28d8a1f697abce469996f68ebd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Board
-  FenConfig: '8/3p4/4n3/2b1p3/3P4/2N1B3/PPP2PPP/R3K2R w KQ - 0 1 '
+  FenConfig: 'r1bqkb1r/ppp1pppp/2n2n2/3p4/2PP4/1N2N3/PP2PPPP/R1BQKB1R w KQkq - 0
+    1 '
   currentTurn: 0
   piecePrefabs:
   - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
@@ -546,10 +547,10 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  dotPrefab: {fileID: 0}
+  dotPrefab: {fileID: 9004740192168517450, guid: 3afaab00d964b3a9b9ef7e3fc159dd89, type: 3}
   Dots: []
   piecesParent: {fileID: 848004011}
-  dotsParent: {fileID: 0}
+  dotsParent: {fileID: 379764243}
 --- !u!1 &1508236325
 GameObject:
   m_ObjectHideFlags: 0
