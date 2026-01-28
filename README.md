@@ -1,2 +1,5 @@
-My current project of a chess board + AI
+My current project of a Unity chess board + AI
+
 Currently WIP
+
+
