@@ -64,9 +64,8 @@ public class ChessPiece : DraggableObject, IBeginDragHandler, IDragHandler, IEnd
     {
         var board = Board.Instance;
         ulong sqr = 1UL << pieceSquare;
-        print(sqr);
 
         ulong possibleMoves = MoveGenerator.ulongGetPseudoMovePawnSqr(board.currentPosition,false,sqr);
-        print(possibleMoves);
+        Board.Instance.PlaceDots(possibleMoves);
     }
 }

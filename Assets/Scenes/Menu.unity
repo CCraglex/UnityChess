@@ -256,6 +256,50 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &379764242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 379764243}
+  - component: {fileID: 379764244}
+  m_Layer: 5
+  m_Name: PositionDots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &379764243
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379764242}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1739671856}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 800, y: 800}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &379764244
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379764242}
+  m_CullTransparentMesh: 1
 --- !u!1 &719280077
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,20 +498,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40097a28d8a1f697abce469996f68ebd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Board
+  FenConfig: '8/3p4/4n3/2b1p3/3P4/2N1B3/PPP2PPP/R3K2R w KQ - 0 1 '
   currentTurn: 0
   piecePrefabs:
   - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
-  - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
-  - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
-  - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
-  - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
-  - {fileID: 9214959676407665445, guid: feda63a3c8d08c6e4ab71c12d7eee2b1, type: 3}
+  - {fileID: 9214959676407665445, guid: c41c422436c34bb6486dd9ae2b6b9a56, type: 3}
+  - {fileID: 9214959676407665445, guid: 2dc18acdf76fa334aa07e3eaa0dd9246, type: 3}
+  - {fileID: 9214959676407665445, guid: dee033b19dac0990197114a6fe7e6f3e, type: 3}
+  - {fileID: 9214959676407665445, guid: 1bd534dd2f568660ab658a3a9f1e4a7e, type: 3}
+  - {fileID: 9214959676407665445, guid: d6ca16e6fc9079292a714e58c91bdcd0, type: 3}
   - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
-  - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
-  - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
-  - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
-  - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
-  - {fileID: 9214959676407665445, guid: 50a7c2b15be5eff9093486317061d02f, type: 3}
+  - {fileID: 9214959676407665445, guid: 24e443642398115e6965aa176cb43342, type: 3}
+  - {fileID: 9214959676407665445, guid: 693a0dcf70466e2f88f3a9225e1ea44d, type: 3}
+  - {fileID: 9214959676407665445, guid: 431b3fe1578d8812f85f1263eb59ed64, type: 3}
+  - {fileID: 9214959676407665445, guid: b759b98bed61cc8599e0d8f1345daaaa, type: 3}
+  - {fileID: 9214959676407665445, guid: e1a3d7015bbf7aa3ab7ac03a4443ced5, type: 3}
   Pieces:
   - {fileID: 0}
   - {fileID: 0}
@@ -501,7 +546,10 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  dotPrefab: {fileID: 0}
+  Dots: []
   piecesParent: {fileID: 848004011}
+  dotsParent: {fileID: 0}
 --- !u!1 &1508236325
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,6 +726,7 @@ RectTransform:
   - {fileID: 719280078}
   - {fileID: 1232411718}
   - {fileID: 848004011}
+  - {fileID: 379764243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

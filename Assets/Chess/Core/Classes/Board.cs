@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
+    [SerializeField] string FenConfig;
     public static Board Instance;
 
     public Turn currentTurn;
@@ -11,7 +12,11 @@ public class Board : MonoBehaviour
     public GameObject[] piecePrefabs;
     public GameObject[] Pieces;
 
+    public GameObject dotPrefab;
+    public List<GameObject> Dots;
+
     public Transform piecesParent;
+    public Transform dotsParent;
 
     private void Start()
     {
@@ -27,8 +32,10 @@ public class Board : MonoBehaviour
 
     public void CreateBoard()
     {
-        currentPosition.CustomBoard("rnbqkbnr/ppp1pppp/8/8/3pP3/6PP/PPPP1P2/RNBQKBNR b KQkq e3 0 3");
-        //currentPosition.NewBoard();
+        if(FenConfig != string.Empty)
+            currentPosition.CustomBoard(FenConfig);
+        else currentPosition.NewBoard();
+        
         Pieces = new GameObject[32];
         PlacePieces();
 
@@ -87,5 +94,36 @@ public class Board : MonoBehaviour
         }
         
         Pieces = new GameObject[32];
+    }
+
+
+    public void PlaceDots(ulong Squares)
+    {
+        void PlaceDotInSqr(int Sqr)
+        {
+            var dot = Instantiate(dotPrefab,dotsParent);
+            var rt = dot.transform as RectTransform;
+            
+            int x = Sqr / 8;
+            int y = Sqr % 8;
+            x = -350 + 100 * x;
+            y = -350 + 100 * y;
+            rt.localPosition = new(x,y);
+
+            Dots.Add(dot);
+        }
+
+        var Sqrs = BitOperations.SqrArrFromBit(Squares);
+        foreach (var item in Sqrs)
+            PlaceDotInSqr(item);
+    }
+
+    public void ClearDots()
+    {
+        if(Dots.Count == 0)
+            return;
+        
+        foreach (var dot in Dots)
+            Destroy(dot);
     }
 }
